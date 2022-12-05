@@ -28,6 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pop(context);
   }
 
+  deleteNote(NotesModel notesModel) async {
+    await notesModel.delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return ListView.builder(
             itemCount: box.values.length,
             itemBuilder: (context, index) {
-              var data = box.getAt(index);
+              //var data = box.getAt(index);
+              var data = box.values.toList().cast<NotesModel>();
               return Card(
                 color: Colors.green.withOpacity(0.3),
                 shape: RoundedRectangleBorder(
@@ -66,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Dismissible(
                     key: UniqueKey(),
                     onDismissed: (direction) {
-                      data.delete();
+                      deleteNote(data[index]);
                     },
                     background: Container(color: Colors.red),
                     child: Column(
@@ -77,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             Text(
-                              data!.title.toString(),
+                              data[index].title.toString(),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -86,12 +91,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Expanded(child: Container()),
                             IconButton(
-                              onPressed: null,
+                              onPressed: () {
+                                _editDialog(
+                                  data[index],
+                                  data[index].title.toString(),
+                                  data[index].description.toString(),
+                                );
+                              },
                               icon: Icon(Icons.edit),
                             ),
                             IconButton(
                               onPressed: () async {
-                                data.delete();
+                                deleteNote(data[index]);
                               },
                               icon: Icon(
                                 Icons.delete,
@@ -101,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         Text(
-                          data.description.toString(),
+                          data[index].description.toString(),
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -159,6 +170,68 @@ class _HomeScreenState extends State<HomeScreen> {
                 addNotes();
               },
               child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _editDialog(
+      NotesModel notesModel, String title, String description) async {
+    titleController.text = title;
+    descriptionCotroller.text = description;
+
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Edit Notes"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    hintText: "Enter title",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: descriptionCotroller,
+                  decoration: InputDecoration(
+                    hintText: "Enter description",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Cencel"),
+            ),
+            TextButton(
+              onPressed: () {
+                notesModel.title = titleController.text.toString();
+                notesModel.description = descriptionCotroller.text.toString();
+
+                notesModel.save();
+
+                titleController.clear();
+                descriptionCotroller.clear();
+                
+                Navigator.pop(context);
+              },
+              child: Text("Edit"),
             ),
           ],
         );
