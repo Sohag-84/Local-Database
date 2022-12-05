@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:notes_app/models/notes_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
     data.save();
     titleController.clear();
     descriptionCotroller.clear();
-    log("data: ${note}");
     Navigator.pop(context);
   }
 
@@ -42,6 +39,50 @@ class _HomeScreenState extends State<HomeScreen> {
           await _showDialog();
         },
         child: const Icon(Icons.add),
+      ),
+      body: ValueListenableBuilder<Box<NotesModel>>(
+        valueListenable: Hive.box<NotesModel>('notes').listenable(),
+        builder: (context, Box<NotesModel> box, child) {
+          if (box.values.isEmpty) {
+            return Center(
+              child: Text("Notes are empty"),
+            );
+          }
+          return ListView.builder(
+            itemCount: box.values.length,
+            itemBuilder: (context, index) {
+              var data = box.getAt(index);
+              return Card(
+                color: Colors.green.withOpacity(0.3),
+                elevation: 1,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15.0,
+                    vertical: 15,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        data!.title.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        data.description.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
