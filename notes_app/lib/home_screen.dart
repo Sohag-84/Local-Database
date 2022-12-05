@@ -54,29 +54,58 @@ class _HomeScreenState extends State<HomeScreen> {
               var data = box.getAt(index);
               return Card(
                 color: Colors.green.withOpacity(0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 1,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 15.0,
                     vertical: 15,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        data!.title.toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                  child: Dismissible(
+                    key: UniqueKey(),
+                    onDismissed: (direction) {
+                      data.delete();
+                    },
+                    background: Container(color: Colors.red),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              data!.title.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Expanded(child: Container()),
+                            IconButton(
+                              onPressed: null,
+                              icon: Icon(Icons.edit),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                data.delete();
+                              },
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Text(
-                        data.description.toString(),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                        Text(
+                          data.description.toString(),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
