@@ -41,7 +41,39 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add),
       ),
-      
+      body: FutureBuilder(
+        future: Hive.openBox('sohag'),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            var data = snapshot.data!;
+            return ListTile(
+              title: Text(data.get('name').toString()),
+              subtitle: Text(data.get('age').toString()),
+              dense: true,
+              leading: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  data.delete('name');
+                  setState(() {});
+                },
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  data.put('name', "Abdullah");
+                  setState(() {
+                    
+                  });
+                },
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
